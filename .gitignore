@@ -1,0 +1,22 @@
+# --- Raw & intermediate data (large, re-downloadable; never commit) ---
+data/raw/
+data/interim/
+# Keep the processed feature table(s) committable so the notebook runs without
+# re-downloading everything — but ignore anything oversized by default.
+data/processed/*.parquet
+data/processed/*.pkl
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- OS / editor ---
+.DS_Store
+*.swp

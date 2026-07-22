@@ -1,0 +1,8 @@
+# Core data / analysis stack for the asteroid rotation-period capstone
+numpy
+pandas
+scipy
+matplotlib
+astropy          # Lomb-Scargle periodogram (baseline) + astronomy utilities
+scikit-learn     # baseline ML classifier / regressor
+jupyter          # notebook environment
