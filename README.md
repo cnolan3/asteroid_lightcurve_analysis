@@ -1,6 +1,6 @@
 # Recovering Asteroid Rotation Periods from Sparse Light Curves
 
-**Capstone project — Unit 20: Initial Report & Exploratory Data Analysis**
+**Initial Report & Exploratory Data Analysis**
 
 ## Research question
 
