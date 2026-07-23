@@ -121,6 +121,11 @@ def load_lcdb_summary(path: Path | str = LCDB_SUMMARY_PATH) -> pd.DataFrame:
     for col in _NUMERIC_COLS:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
+    # Asteroid numbering starts at 1 (Ceres); "0" is the source's placeholder for
+    # unnumbered objects (comets, provisional designations). Treat it as missing so
+    # those distinct objects are not conflated into a single number.
+    df.loc[df["number"] == 0, "number"] = np.nan
+
     # Parse the U code into an ordered numeric scale.
     df["U_num"] = df["U"].map(parse_u_code)
 

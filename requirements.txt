@@ -3,6 +3,7 @@ numpy
 pandas
 scipy
 matplotlib
+seaborn          # statistical visualizations
 astropy          # Lomb-Scargle periodogram (baseline) + astronomy utilities
 scikit-learn     # baseline ML classifier / regressor
 jupyter          # notebook environment
