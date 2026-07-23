@@ -360,12 +360,13 @@ def object_photometry(
     return pd.concat(frames, ignore_index=True)
 
 
-def object_summary(number: int, zip_path: Path | str = ALCDEF_ZIP_PATH) -> dict:
-    """Quick per-object coverage stats for EDA (no periodogram, just counts/spans)."""
-    blocks = load_alcdef_blocks(number, zip_path)
+def _summarize_blocks(number: int, blocks: list[LightCurveBlock]) -> dict:
+    """Per-object coverage stats from already-parsed blocks (no periodogram)."""
     n_points = sum(len(b) for b in blocks)
     all_jd = np.concatenate([b.jd for b in blocks]) if blocks else np.array([])
-    bands = {b.magband for b in blocks if b.magband}
+    bands = sorted({b.magband for b in blocks if b.magband})
+    # points per session -> the longest session, which bounds single-night coverage
+    session_lengths = [len(b) for b in blocks]
     return {
         "number": int(number),
         "n_sessions": len(blocks),
@@ -373,6 +374,51 @@ def object_summary(number: int, zip_path: Path | str = ALCDEF_ZIP_PATH) -> dict:
         # distinct integer JDs ~ distinct nights of observation
         "n_nights": int(np.unique(np.floor(all_jd)).size) if all_jd.size else 0,
         "jd_span_days": float(all_jd.max() - all_jd.min()) if all_jd.size else 0.0,
-        "bands": sorted(bands),
+        "max_session_points": int(max(session_lengths)) if session_lengths else 0,
+        "n_bands": len(bands),
+        "bands": bands,
     }
+
+
+def object_summary(number: int, zip_path: Path | str = ALCDEF_ZIP_PATH) -> dict:
+    """Quick per-object coverage stats for EDA (no periodogram, just counts/spans)."""
+    return _summarize_blocks(number, load_alcdef_blocks(number, zip_path))
+
+
+def iter_alcdef_blocks_bulk(
+    numbers=None, zip_path: Path | str = ALCDEF_ZIP_PATH
+):
+    """Yield (number, blocks) for many objects, opening the zip only once.
+
+    This is the efficient path for a full pass over the archive (e.g. building a
+    coverage or feature table). `numbers` restricts to a subset (skipping any
+    that are absent); None iterates every numbered object in the archive.
+    """
+    index = _alcdef_index(str(zip_path))
+    by_number = index["by_number"]
+    if numbers is None:
+        items = sorted(by_number.items())
+    else:
+        items = [(int(n), by_number[int(n)]) for n in numbers if int(n) in by_number]
+    with zipfile.ZipFile(zip_path) as zf:
+        for num, member in items:
+            text = zf.read(member).decode("latin-1")
+            yield num, parse_alcdef_text(text)
+
+
+def build_coverage_table(
+    numbers=None, zip_path: Path | str = ALCDEF_ZIP_PATH
+) -> pd.DataFrame:
+    """Compute the per-object coverage table over `numbers` (one pass over the zip).
+
+    Returns one row per object with session/point/night counts and JD span. The
+    `bands` list is flattened to a comma-joined string so the frame is
+    parquet/CSV friendly.
+    """
+    rows = []
+    for num, blocks in iter_alcdef_blocks_bulk(numbers, zip_path):
+        row = _summarize_blocks(num, blocks)
+        row["bands"] = ",".join(row["bands"])
+        rows.append(row)
+    return pd.DataFrame(rows)
 
