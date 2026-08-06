@@ -7,3 +7,4 @@ seaborn          # statistical visualizations
 astropy          # Lomb-Scargle periodogram (baseline) + astronomy utilities
 scikit-learn     # baseline ML classifier / regressor
 jupyter          # notebook environment
+torch            # RNN experiment (Section 12); CPU build is sufficient
