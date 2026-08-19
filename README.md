@@ -100,6 +100,8 @@ src/
   sparsity.py         # controlled down-sampling pipeline
   baseline.py         # Lomb–Scargle periodogram baseline
   features.py         # feature extraction for the classifier
+scripts/
+  download_data.sh    # download + lay out the raw data under data/raw/
 data/                 # raw/interim/processed (git-ignored; see below)
 figures/              # saved figures used in the report
 docs/                 # capstone overview, proposal, unit requirements
@@ -113,9 +115,9 @@ conda create -n asteroid-lc -c conda-forge -y python=3.12 \
   numpy pandas scipy matplotlib astropy scikit-learn jupyter
 conda activate asteroid-lc
 
-# raw data (git-ignored; download into data/raw/)
-#   LCDB : https://minplanobs.org/mpinfo/datazips/LCLIST_PUB_2023OCT.zip  -> data/raw/lcdb/
-#   ALCDEF: https://alcdef.org/docs/ALCDEF_ALL.zip                        -> data/raw/alcdef/
+# raw data (git-ignored; ~140 MB total): downloads the LCDB release into
+# data/raw/lcdb/ and the ALCDEF archive into data/raw/alcdef/. Safe to re-run.
+bash scripts/download_data.sh
 
 jupyter notebook asteroid_rotation_technical.ipynb
 ```
