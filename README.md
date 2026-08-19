@@ -100,8 +100,10 @@ src/
   sparsity.py         # controlled down-sampling pipeline
   baseline.py         # Lomb–Scargle periodogram baseline
   features.py         # feature extraction for the classifier
+  neural.py           # neural-net experiments (GRU on folded curves, CNN on periodograms)
 scripts/
   download_data.sh    # download + lay out the raw data under data/raw/
+  build_features.py   # build data/processed/features.parquet (and the coverage cache)
 data/                 # raw/interim/processed (git-ignored; see below)
 figures/              # saved figures used in the report
 docs/                 # capstone overview, proposal, unit requirements
@@ -110,14 +112,19 @@ docs/                 # capstone overview, proposal, unit requirements
 ## Reproducing
 
 ```bash
-# environment (conda; the scientific stack from conda-forge)
+# environment (conda; the scientific stack from conda-forge, torch via pip)
 conda create -n asteroid-lc -c conda-forge -y python=3.12 \
-  numpy pandas scipy matplotlib astropy scikit-learn jupyter
+  numpy pandas scipy matplotlib seaborn astropy scikit-learn pyarrow jupyter
 conda activate asteroid-lc
+pip install torch   # neural-net experiments; the CPU build is sufficient
 
 # raw data (git-ignored; ~140 MB total): downloads the LCDB release into
 # data/raw/lcdb/ and the ALCDEF archive into data/raw/alcdef/. Safe to re-run.
 bash scripts/download_data.sh
+
+# feature table (data/processed/features.parquet): 2,000 sampled asteroids x
+# 7 sparsity levels, ~10-30 min. Builds the coverage cache too if missing.
+python scripts/build_features.py
 
 jupyter notebook asteroid_rotation_technical.ipynb
 ```
