@@ -7,3 +7,5 @@ seaborn          # statistical visualizations
 astropy          # Lomb-Scargle periodogram (baseline) + astronomy utilities
 scikit-learn     # baseline ML classifier / regressor
 jupyter          # notebook environment
+torch            # neural-net experiments (src/neural.py); CPU build is sufficient
+requests         # survey data fetch script (scripts/fetch_survey_data.py)
